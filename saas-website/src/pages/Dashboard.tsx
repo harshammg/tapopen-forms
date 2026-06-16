@@ -1,4 +1,4 @@
-import { Activity, FolderOpen, Plus, Search, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut } from 'lucide-react';
+import { Activity, FolderOpen, Plus, Search, Settings, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -319,6 +319,11 @@ export default function Dashboard() {
                     <a href={form.link} target="_blank" rel="noreferrer" className="bg-white/5 hover:bg-white/10 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-white/10 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Open Link">
                       <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-white" />
                       <span className="sm:hidden text-sm font-bold text-gray-300 group-hover:text-white">Open</span>
+                    </a>
+
+                    <a href={`https://docs.google.com/forms/d/${form.googleFormId.replace(/^e-/, '')}/edit`} target="_blank" rel="noreferrer" className="bg-purple-500/10 hover:bg-purple-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-purple-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Edit Google Form">
+                      <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 group-hover:text-purple-300" />
+                      <span className="sm:hidden text-sm font-bold text-purple-300 group-hover:text-purple-200">Edit Form</span>
                     </a>
                   </div>
                 </div>
