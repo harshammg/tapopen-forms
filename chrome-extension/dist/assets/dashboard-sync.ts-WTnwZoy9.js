@@ -1,0 +1,2 @@
+(function(){function s(){chrome.storage.local.get("creatorLinks",o=>{const a=o.creatorLinks||{},e=Object.values(a);window.postMessage({type:"EXT_FORMS_SYNC",forms:e},"*"),console.log("Forms by tapOpen: Synced data to dashboard",e)})}window.addEventListener("message",o=>{o.source===window&&o.data&&o.data.type==="DASHBOARD_READY"&&(console.log("Forms by tapOpen: Dashboard is ready, initiating sync..."),s())});s();chrome.storage.onChanged.addListener((o,a)=>{a==="local"&&o.creatorLinks&&s()});
+})()
