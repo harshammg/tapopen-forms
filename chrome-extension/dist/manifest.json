@@ -34,7 +34,7 @@
     },
     {
       "js": [
-        "assets/dashboard-sync.ts-WTnwZoy9.js"
+        "assets/dashboard-sync.ts-BU-HPvCk.js"
       ],
       "matches": [
         "http://localhost:5173/*",
@@ -60,7 +60,7 @@
         "https://forms.tapopen.online/*"
       ],
       "resources": [
-        "assets/dashboard-sync.ts-WTnwZoy9.js"
+        "assets/dashboard-sync.ts-BU-HPvCk.js"
       ],
       "use_dynamic_url": false
     }

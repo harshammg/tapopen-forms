@@ -22,9 +22,22 @@ window.addEventListener('message', (event) => {
   // We only care about messages from our own window
   if (event.source !== window) return;
 
-  if (event.data && event.data.type === 'DASHBOARD_READY') {
-    console.log('Forms by tapOpen: Dashboard is ready, initiating sync...');
-    syncDataToWebsite();
+  if (event.data) {
+    if (event.data.type === 'DASHBOARD_READY') {
+      console.log('Forms by tapOpen: Dashboard is ready, initiating sync...');
+      syncDataToWebsite();
+    } else if (event.data.type === 'WEBSITE_FORM_DELETE') {
+      const googleFormId = event.data.googleFormId;
+      chrome.storage.local.get('creatorLinks', (result) => {
+        const links = result.creatorLinks || {};
+        if (links[googleFormId]) {
+          delete links[googleFormId];
+          chrome.storage.local.set({ creatorLinks: links }, () => {
+            console.log('Forms by tapOpen: Deleted form from extension storage:', googleFormId);
+          });
+        }
+      });
+    }
   }
 });
 

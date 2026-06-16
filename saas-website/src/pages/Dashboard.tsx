@@ -1,4 +1,4 @@
-import { Activity, FolderOpen, Plus, Search, Settings, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut } from 'lucide-react';
+import { Activity, FolderOpen, Plus, Search, Settings, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -150,6 +150,28 @@ export default function Dashboard() {
         console.error('Rename failed:', error);
         alert('Could not update form name');
       } else {
+        await loadDbForms();
+      }
+    }
+  };
+
+  const handleDelete = async (formId: string, googleFormId: string) => {
+    if (confirm('Are you sure you want to delete this timed form? This will remove it from the dashboard and your Chrome extension local storage.')) {
+      const { error } = await supabase
+        .from('forms')
+        .delete()
+        .eq('id', formId);
+      
+      if (error) {
+        console.error('Delete failed:', error);
+        alert('Could not delete form');
+      } else {
+        // Notify the extension to delete it from local storage
+        window.postMessage({
+          type: 'WEBSITE_FORM_DELETE',
+          googleFormId
+        }, '*');
+        
         await loadDbForms();
       }
     }
@@ -326,6 +348,11 @@ export default function Dashboard() {
                       <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 group-hover:text-purple-300" />
                       <span className="sm:hidden text-sm font-bold text-purple-300 group-hover:text-purple-200">Edit Form</span>
                     </a>
+
+                    <button onClick={() => handleDelete(form.id, form.googleFormId)} className="bg-red-500/10 hover:bg-red-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-red-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2 cursor-pointer" title="Delete Timed Form">
+                      <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-red-400 group-hover:text-red-300" />
+                      <span className="sm:hidden text-sm font-bold text-red-300 group-hover:text-red-200">Delete</span>
+                    </button>
                   </div>
                 </div>
               </li>
