@@ -32,7 +32,7 @@ create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
--- 3. Create a table for storing secure timed forms (updated with title field)
+-- 3. Create a table for storing secure timed forms (updated with title field and uniqueness constraint)
 create table if not exists public.forms (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade not null,
@@ -40,7 +40,8 @@ create table if not exists public.forms (
   google_form_link text not null,
   duration_seconds integer not null,
   expires_at timestamp with time zone,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint unique_user_google_form unique (user_id, google_form_link)
 );
 
 -- Enable RLS on forms

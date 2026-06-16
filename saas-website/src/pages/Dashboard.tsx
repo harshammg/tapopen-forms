@@ -65,59 +65,39 @@ export default function Dashboard() {
     if (!user) return;
 
     try {
-      // 1. Fetch current database forms
-      const { data: dbForms, error: fetchError } = await supabase
-        .from('forms')
-        .select('*');
-
-      if (fetchError) throw fetchError;
-
-      const dbFormMap = new Map(dbForms?.map(f => [f.google_form_link, f]));
-      let changesMade = false;
-
-      for (const extForm of extForms) {
+      const upsertData = extForms.map(extForm => {
         const googleFormId = extractFormIdFromLink(extForm.link);
-        if (!googleFormId) continue;
-
-        const existing = dbFormMap.get(googleFormId);
+        if (!googleFormId) return null;
+        
         const expiresAt = extForm.expiresTs ? new Date(extForm.expiresTs).toISOString() : null;
+        return {
+          user_id: user.id,
+          google_form_link: googleFormId,
+          duration_seconds: extForm.durationSeconds,
+          expires_at: expiresAt
+        };
+      }).filter(Boolean) as any[];
 
-        if (!existing) {
-          // Insert new form
-          const { error: insertError } = await supabase
-            .from('forms')
-            .insert({
-              user_id: user.id,
-              google_form_link: googleFormId,
-              duration_seconds: extForm.durationSeconds,
-              expires_at: expiresAt,
-              title: `Form: ${googleFormId.substring(0, 8)}`
-            });
-          if (insertError) console.error('Insert error:', insertError);
-          else changesMade = true;
-        } else {
-          // Check if settings differ and update if necessary
-          const dbExpiresTs = existing.expires_at ? new Date(existing.expires_at).getTime() : null;
-          const extExpiresTs = extForm.expiresTs || null;
+      if (upsertData.length === 0) return;
 
-          if (
-            existing.duration_seconds !== extForm.durationSeconds ||
-            dbExpiresTs !== extExpiresTs
-          ) {
-            const { error: updateError } = await supabase
-              .from('forms')
-              .update({
-                duration_seconds: extForm.durationSeconds,
-                expires_at: expiresAt
-              })
-              .eq('id', existing.id);
-            if (updateError) console.error('Update error:', updateError);
-            else changesMade = true;
-          }
-        }
-      }
+      // Fetch existing forms to preserve their titles
+      const { data: dbForms } = await supabase
+        .from('forms')
+        .select('google_form_link, title');
+      const titleMap = new Map(dbForms?.map(f => [f.google_form_link, f.title]));
 
-      if (changesMade) {
+      const finalUpsertData = upsertData.map(d => ({
+        ...d,
+        title: titleMap.get(d.google_form_link) || `Form: ${d.google_form_link.substring(0, 8)}`
+      }));
+
+      const { error: upsertError } = await supabase
+        .from('forms')
+        .upsert(finalUpsertData, { onConflict: 'user_id,google_form_link' });
+
+      if (upsertError) {
+        console.error('Upsert error:', upsertError);
+      } else {
         await loadDbForms();
       }
     } catch (err) {
