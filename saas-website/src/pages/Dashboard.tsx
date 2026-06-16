@@ -210,18 +210,19 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl text-white relative overflow-hidden group border border-purple-500/30">
+        <div className="hidden md:block bg-gradient-to-br from-purple-900/40 to-blue-900/40 backdrop-blur-xl rounded-[2rem] p-8 shadow-2xl text-white relative overflow-hidden group border border-purple-500/30">
            <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/30 blur-3xl rounded-full group-hover:bg-purple-500/40 transition-colors duration-500"></div>
            <div className="relative h-full flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start">
-                <p className="text-sm font-bold text-purple-300 uppercase tracking-wider">Storage Status</p>
-                <span className="bg-purple-500/20 ring-1 ring-purple-500/50 text-purple-200 text-xs px-3 py-1 rounded-full font-bold">Cloud Synced</span>
+                <p className="text-sm font-bold text-purple-300 uppercase tracking-wider">Roadmap</p>
+                <span className="bg-purple-500/20 ring-1 ring-purple-500/50 text-purple-200 text-xs px-3 py-1 rounded-full font-bold">Planned</span>
               </div>
-              <p className="text-4xl font-black mt-2 tracking-tight text-white">Supabase Enabled</p>
+              <p className="text-4xl font-black mt-2 tracking-tight text-white">New Features</p>
+              <p className="text-sm text-gray-400 mt-2 font-medium">We are actively building team collaboration tools, custom domains, and more advanced proctoring settings.</p>
             </div>
             <button className="w-full mt-6 bg-white/5 text-gray-400 ring-1 ring-white/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md cursor-not-allowed">
-              <Lock className="w-4 h-4" /> Team Features (Coming Soon)
+              <Lock className="w-4 h-4" /> Coming Soon
             </button>
           </div>
         </div>
