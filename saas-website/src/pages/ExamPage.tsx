@@ -1,6 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ShieldAlert, Clock, AlertTriangle, Eye, Ban, TimerOff } from 'lucide-react';
+import { ShieldAlert, Clock, AlertTriangle, Eye, Ban, TimerOff, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 type Phase = 'splash' | 'exam' | 'finished';
 type FinishReason = 'timeout' | 'violation';
@@ -8,46 +9,70 @@ type FinishReason = 'timeout' | 'violation';
 export default function ExamPage() {
   const { formId } = useParams<{ formId: string }>();
   const [searchParams] = useSearchParams();
-  const timerSeconds = parseInt(searchParams.get('timer') || '0', 10);
-  const expiresTs = searchParams.get('expires');
+
+  // Check if formId is a Supabase UUID
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formId || '');
+
+  // Dynamic settings state
+  const [googleFormLink, setGoogleFormLink] = useState<string>('');
+  const [timerSeconds, setTimerSeconds] = useState<number>(0);
+  const [expiresTs, setExpiresTs] = useState<string | null>(null);
+  
+  const [dbLoading, setDbLoading] = useState(isUuid);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   const [phase, setPhase] = useState<Phase>('splash');
-  const [remaining, setRemaining] = useState(timerSeconds);
+  const [remaining, setRemaining] = useState(0);
   const [finishReason, setFinishReason] = useState<FinishReason>('timeout');
   const [warning, setWarning] = useState<string | null>(null);
+  
   const intervalRef = useRef<number | null>(null);
   const warningTimeoutRef = useRef<number | null>(null);
   const iframeLoadCount = useRef(0);
 
+  // Fetch form details from Supabase if using UUID link
+  useEffect(() => {
+    if (!isUuid) {
+      // Fallback to query params
+      const qTimer = parseInt(searchParams.get('timer') || '0', 10);
+      const qExpires = searchParams.get('expires');
+      setGoogleFormLink(formId || '');
+      setTimerSeconds(qTimer);
+      setExpiresTs(qExpires);
+      setRemaining(qTimer);
+      setDbLoading(false);
+      return;
+    }
+
+    const fetchFormSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('forms')
+          .select('*')
+          .eq('id', formId)
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          setGoogleFormLink(data.google_form_link);
+          setTimerSeconds(data.duration_seconds);
+          setRemaining(data.duration_seconds);
+          setExpiresTs(data.expires_at ? new Date(data.expires_at).getTime().toString() : null);
+        } else {
+          setDbError('Secure timed link is invalid.');
+        }
+      } catch (err) {
+        console.error('Failed to load secure form settings:', err);
+        setDbError('This timed form is inactive, deleted, or incorrect.');
+      } finally {
+        setDbLoading(false);
+      }
+    };
+
+    fetchFormSettings();
+  }, [formId, isUuid, searchParams]);
+
   const isExpired = expiresTs ? Date.now() > parseInt(expiresTs, 10) : false;
-
-  if (!formId || timerSeconds <= 0) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-white font-['Space_Grotesk']">
-        <div className="text-center max-w-md">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-500/20 ring-1 ring-red-500/30 mb-6">
-            <Ban className="h-10 w-10 text-red-400" />
-          </div>
-          <h1 className="text-3xl font-black mb-3">Invalid Link</h1>
-          <p className="text-gray-400 text-lg">This exam link is missing required parameters. Please contact the form creator.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isExpired) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-white font-['Space_Grotesk']">
-        <div className="text-center max-w-md">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-orange-500/20 ring-1 ring-orange-500/30 mb-6">
-            <TimerOff className="h-10 w-10 text-orange-400" />
-          </div>
-          <h1 className="text-3xl font-black mb-3">Link Expired</h1>
-          <p className="text-gray-400 text-lg">This form link has expired and is no longer accepting responses.</p>
-        </div>
-      </div>
-    );
-  }
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -106,35 +131,66 @@ export default function ExamPage() {
     };
   }, []);
 
-  let correctFormId = formId;
-  // If the extension passed an 'e-' prefix, restore it to 'e/' for Google Forms
-  if (formId && formId.startsWith('e-')) {
-    correctFormId = formId.replace(/^e-/, 'e/');
-  } else if (formId && formId.startsWith('1FAIp')) {
-    // Fallback: if it's a known published form ID, it needs the e/ prefix
-    correctFormId = `e/${formId}`;
+  // Handle nested formId strings
+  let correctFormId = googleFormLink;
+  if (googleFormLink.startsWith('e-')) {
+    correctFormId = googleFormLink.replace(/^e-/, 'e/');
+  } else if (googleFormLink.startsWith('1FAIp')) {
+    correctFormId = `e/${googleFormLink}`;
   }
 
   const formUrl = `https://docs.google.com/forms/d/${correctFormId}/viewform?embedded=true`;
 
   const handleIframeLoad = () => {
     iframeLoadCount.current += 1;
-    
-    // Load 1: Initial form view
-    // Load 2: Form submission success page (user submitted the form)
-    // Load 3: Clicked "Submit another response" (redirects back to viewform)
-    
     if (iframeLoadCount.current === 2) {
-      // The user successfully submitted the form. Stop the timer.
       if (intervalRef.current) clearInterval(intervalRef.current);
     } else if (iframeLoadCount.current >= 3) {
-      // The user clicked "Submit another response".
-      // Reset everything and go back to the splash screen.
       if (intervalRef.current) clearInterval(intervalRef.current);
       setPhase('splash');
       iframeLoadCount.current = 0;
     }
   };
+
+  // ─── LOADING SCREEN ───
+  if (dbLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0B] flex flex-col items-center justify-center text-white font-['Space_Grotesk']">
+        <Loader2 className="h-10 w-10 text-purple-400 animate-spin mb-4" />
+        <p className="text-gray-400 font-bold text-sm tracking-wider uppercase">Verifying Secure Session...</p>
+      </div>
+    );
+  }
+
+  // ─── ERROR SCREEN ───
+  if (dbError || !formId || timerSeconds <= 0) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-white font-['Space_Grotesk']">
+        <div className="text-center max-w-md px-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-500/20 ring-1 ring-red-500/30 mb-6">
+            <Ban className="h-10 w-10 text-red-400" />
+          </div>
+          <h1 className="text-3xl font-black mb-3">Invalid Link</h1>
+          <p className="text-gray-400 text-base">{dbError || "This timed link is missing required settings. Please contact the form host."}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── EXPIRED SCREEN ───
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-white font-['Space_Grotesk']">
+        <div className="text-center max-w-md px-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-orange-500/20 ring-1 ring-orange-500/30 mb-6">
+            <TimerOff className="h-10 w-10 text-orange-400" />
+          </div>
+          <h1 className="text-3xl font-black mb-3">Link Expired</h1>
+          <p className="text-gray-400 text-base">This timed assessment has expired and is no longer accepting new attempts.</p>
+        </div>
+      </div>
+    );
+  }
 
   // ─── SPLASH SCREEN ───
   if (phase === 'splash') {
@@ -170,7 +226,7 @@ export default function ExamPage() {
                 <div>
                   <h3 className="font-bold text-sm sm:text-base text-red-200">Strict Proctoring</h3>
                   <p className="text-xs sm:text-sm text-red-300/80 mt-1">
-                    <strong className="text-white">Do not switch tabs or minimize the window.</strong> If you leave this page, the form will be permanently removed.
+                    <strong className="text-white">Do not switch tabs or minimize the window.</strong> If you leave this page, your test session will be instantly terminated.
                   </p>
                 </div>
               </div>
@@ -178,9 +234,9 @@ export default function ExamPage() {
               <div className="flex items-start gap-3 sm:gap-4 bg-yellow-500/10 border border-yellow-500/20 p-3 sm:p-4 rounded-2xl">
                 <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400 mt-0.5 shrink-0" />
                 <div>
-                  <h3 className="font-bold text-sm sm:text-base text-yellow-200">Submit Before Time Runs Out</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-yellow-200">Submit Before Expiry</h3>
                   <p className="text-xs sm:text-sm text-yellow-300/80 mt-1">
-                    When the timer expires, the form will be <strong className="text-white">permanently hidden</strong>. Any unsubmitted answers will be lost.
+                    When the timer runs out, the form will be <strong className="text-white">permanently hidden</strong>. Unsubmitted answers will be lost.
                   </p>
                 </div>
               </div>
@@ -218,8 +274,8 @@ export default function ExamPage() {
           </h1>
           <p className="text-gray-400 text-lg font-medium leading-relaxed">
             {isViolation
-              ? 'You left the exam page. Your session has been terminated and the form has been removed.'
-              : 'The time limit has expired. If you did not submit your form before the deadline, your responses have been lost.'
+              ? 'You switched tabs or left the active window. Your session has been terminated and the form is hidden.'
+              : 'The time limit has expired. If you did not click submit on Google Forms before the countdown finished, your progress is lost.'
             }
           </p>
         </div>
@@ -268,16 +324,18 @@ export default function ExamPage() {
         </div>
       </div>
 
-      {/* Google Form Iframe */}
+      {/* Google Form IFrame */}
       <div className="flex-1 relative">
-        <iframe
-          src={formUrl}
-          title="Google Form"
-          onLoad={handleIframeLoad}
-          className="absolute inset-0 w-full h-full border-0"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-          allow="autoplay"
-        />
+        {formUrl && (
+          <iframe
+            src={formUrl}
+            title="Google Form"
+            onLoad={handleIframeLoad}
+            className="absolute inset-0 w-full h-full border-0"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+            allow="autoplay"
+          />
+        )}
       </div>
     </div>
   );
