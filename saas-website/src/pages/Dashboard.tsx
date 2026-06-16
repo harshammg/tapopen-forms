@@ -74,7 +74,8 @@ export default function Dashboard() {
           user_id: user.id,
           google_form_link: googleFormId,
           duration_seconds: extForm.durationSeconds,
-          expires_at: expiresAt
+          expires_at: expiresAt,
+          title: extForm.title || null
         };
       }).filter(Boolean) as any[];
 
@@ -86,10 +87,18 @@ export default function Dashboard() {
         .select('google_form_link, title');
       const titleMap = new Map(dbForms?.map(f => [f.google_form_link, f.title]));
 
-      const finalUpsertData = upsertData.map(d => ({
-        ...d,
-        title: titleMap.get(d.google_form_link) || `Form: ${d.google_form_link.substring(0, 8)}`
-      }));
+      const finalUpsertData = upsertData.map(d => {
+        const existingTitle = titleMap.get(d.google_form_link);
+        const isDefaultTitle = existingTitle && existingTitle.startsWith('Form: ');
+        
+        return {
+          user_id: d.user_id,
+          google_form_link: d.google_form_link,
+          duration_seconds: d.duration_seconds,
+          expires_at: d.expires_at,
+          title: (!existingTitle || isDefaultTitle) ? (d.title || `Form: ${d.google_form_link.substring(0, 8)}`) : existingTitle
+        };
+      });
 
       const { error: upsertError } = await supabase
         .from('forms')

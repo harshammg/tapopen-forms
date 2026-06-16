@@ -49,6 +49,9 @@ async function saveSettingsLocally(): Promise<string | null> {
     expiresTs = new Date(expirationInput.value).getTime();
   }
 
+  let formTitle = activeTab.title || 'Untitled Form';
+  formTitle = formTitle.replace(/\s*-\s*Google\s+Forms/gi, '').trim();
+
   return new Promise((resolve) => {
     chrome.storage.local.get('creatorLinks', (result) => {
       const links = result.creatorLinks || {};
@@ -59,7 +62,8 @@ async function saveSettingsLocally(): Promise<string | null> {
       links[formId] = { 
         link: currentLink, 
         durationSeconds,
-        expiresTs
+        expiresTs,
+        title: formTitle
       };
       chrome.storage.local.set({ creatorLinks: links }, () => {
         resolve(formId);
