@@ -42,7 +42,7 @@ export default function Navbar() {
                 <span>Log In</span>
               </Link>
             )}
-            <button className="bg-white hover:bg-gray-200 text-gray-900 px-4 py-2 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-transparent hover:border-white/20 whitespace-nowrap">
+            <button className="hidden sm:block bg-white hover:bg-gray-200 text-gray-900 px-4 py-2 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-transparent hover:border-white/20 whitespace-nowrap">
               Install Extension
             </button>
           </div>
