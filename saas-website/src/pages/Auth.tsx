@@ -18,31 +18,37 @@ export default function Auth() {
     setError(null);
     setMessage(null);
 
-    if (isSignUp) {
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else if (data.user && data.session === null) {
-        // Confirmation email required
-        setMessage('Registration successful! Please check your email for a verification link.');
+    try {
+      if (isSignUp) {
+        const { error, data } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) {
+          setError(error.message || (typeof error === 'string' ? error : 'Sign up failed. Please check your email and password.'));
+        } else if (data.user && data.session === null) {
+          // Confirmation email required
+          setMessage('Registration successful! Please check your email for a verification link.');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        navigate('/dashboard');
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          setError(error.message || (typeof error === 'string' ? error : 'Log in failed. Please check your credentials.'));
+        } else {
+          navigate('/dashboard');
+        }
       }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-      } else {
-        navigate('/dashboard');
-      }
+    } catch (err: any) {
+      console.error('Auth handler error:', err);
+      setError(err?.message || String(err) || 'An unexpected authentication error occurred.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
