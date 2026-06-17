@@ -60,9 +60,9 @@ This will compile the extension assets into the `/chrome-extension/dist` directo
 
 ---
 
-## 🤝 Open for Contributors!
+## Open for Contributors
 
-We welcome contributions from developers of all skill levels! Whether you want to fix a bug, add a new feature, or improve the documentation — we'd love your help.
+We welcome contributions from developers of all skill levels. Whether you want to fix a bug, add a new feature, or improve the documentation — we'd love your help.
 
 ### How to Contribute
 
@@ -103,13 +103,13 @@ We welcome contributions from developers of all skill levels! Whether you want t
 
 ### Ideas for Contributions
 
-- 🎨 **UI/UX Improvements** — Better responsive design, animations, dark/light themes
-- 🔒 **Advanced Proctoring** — Webcam monitoring, full-screen enforcement
-- 📊 **Analytics Dashboard** — Charts for form submissions, time taken, etc.
-- 🌍 **Internationalization** — Multi-language support
-- 🧪 **Testing** — Unit tests, integration tests, E2E tests
-- 📝 **Documentation** — Tutorials, API docs, video walkthroughs
-- 🐛 **Bug Fixes** — Check the [Issues](https://github.com/harshammg/tapopen-forms/issues) tab
+- **UI/UX Improvements** — Better responsive design, animations, dark/light themes
+- **Advanced Proctoring** — Webcam monitoring, full-screen enforcement
+- **Analytics Dashboard** — Charts for form submissions, time taken, etc.
+- **Internationalization** — Multi-language support
+- **Testing** — Unit tests, integration tests, E2E tests
+- **Documentation** — Tutorials, API docs, video walkthroughs
+- **Bug Fixes** — Check the [Issues](https://github.com/harshammg/tapopen-forms/issues) tab
 
 ### Guidelines
 
@@ -120,12 +120,12 @@ We welcome contributions from developers of all skill levels! Whether you want t
 
 ---
 
-## 📄 License
+## License
 
 This project is open source. Feel free to use, modify, and distribute it.
 
 ---
 
 <p align="center">
-  Built with ❤️ by <a href="https://github.com/harshammg">tapOpen</a>
+  Built by <a href="https://github.com/harshammg">tapOpen</a>
 </p>
