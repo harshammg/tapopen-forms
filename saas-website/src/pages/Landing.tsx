@@ -58,8 +58,8 @@ export default function Landing() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="#" className="w-full sm:w-auto group relative rounded-full bg-white px-8 py-4 text-sm font-black text-gray-900 shadow-2xl hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center gap-2 border border-transparent hover:border-white/20">
-                Add to Chrome Free
+              <a href="/extension.zip" download="google-forms-timer-extension.zip" className="w-full sm:w-auto group relative rounded-full bg-white px-8 py-4 text-sm font-black text-gray-900 shadow-2xl hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center gap-2 border border-transparent hover:border-white/20 text-center no-underline pointer-events-auto">
+                Download Extension
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
               {user ? (

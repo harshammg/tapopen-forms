@@ -6,8 +6,7 @@
   "permissions": [
     "storage",
     "activeTab",
-    "clipboardWrite",
-    "webRequest"
+    "clipboardWrite"
   ],
   "host_permissions": [
     "*://docs.google.com/forms/*"

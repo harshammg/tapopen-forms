@@ -219,10 +219,14 @@ export default function Dashboard() {
             Sign Out
           </button>
           {!extensionDetected && (
-            <button type="button" className="hidden sm:inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-xl hover:bg-gray-200 transition-all hover:shadow-white/20 active:scale-95">
+            <a 
+              href="/extension.zip" 
+              download="google-forms-timer-extension.zip"
+              className="hidden sm:inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-xl hover:bg-gray-200 transition-all hover:shadow-white/20 active:scale-95 no-underline pointer-events-auto"
+            >
               <Plus className="h-4 w-4" />
-              Install Extension
-            </button>
+              Download Extension
+            </a>
           )}
         </div>
       </div>
