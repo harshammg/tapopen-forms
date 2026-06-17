@@ -111,9 +111,29 @@ generateBtn.addEventListener('click', async () => {
     const links = result.creatorLinks || {};
     if (links[formId]) {
       links[formId].link = link;
-      chrome.storage.local.set({ creatorLinks: links }, () => {
-        // Automatically redirect to dashboard ONLY AFTER saving completes
-        chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
+      chrome.storage.local.set({ creatorLinks: links }, async () => {
+        // Try to find an existing dashboard tab (localhost or production)
+        const allTabs = await chrome.tabs.query({});
+        const dashboardTab = allTabs.find(t => 
+          t.url && (
+            t.url.includes('localhost:5173') || 
+            t.url.includes('forms.tapopen.online')
+          )
+        );
+        
+        if (dashboardTab && dashboardTab.id) {
+          // Reuse existing tab — navigate it to /dashboard and focus it
+          const baseUrl = dashboardTab.url!.includes('localhost:5173') 
+            ? 'http://localhost:5173' 
+            : WEBSITE_BASE;
+          chrome.tabs.update(dashboardTab.id, { 
+            url: `${baseUrl}/dashboard`, 
+            active: true 
+          });
+        } else {
+          // No existing tab, open production dashboard
+          chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
+        }
       });
     } else {
       chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });

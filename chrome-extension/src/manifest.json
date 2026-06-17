@@ -3,7 +3,7 @@
   "name": "Google Forms Timer",
   "version": "1.0.0",
   "description": "A customizable timer for Google Forms",
-  "permissions": ["storage", "activeTab", "clipboardWrite", "webRequest"],
+  "permissions": ["storage", "activeTab", "tabs", "clipboardWrite", "webRequest"],
   "host_permissions": ["*://docs.google.com/forms/*"],
   "icons": {
     "16": "public/icon128.png",
