@@ -2,7 +2,7 @@
 
 This repository contains the Chrome Extension for **TapOpen Forms**, a platform that adds customizable countdown timers and anti-cheat proctoring to Google Forms.
 
-You can use this extension locally to configure timers on your Google Forms and sync them to the live hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online).
+You can use this extension to configure timers on your Google Forms and sync them to the live hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online).
 
 ---
 
@@ -14,9 +14,35 @@ You can use this extension locally to configure timers on your Google Forms and 
 
 ---
 
-## How to Install the Extension Locally
+## How to Install the Extension (No Coding Required)
 
-Follow these steps to build the extension and load it into your Chrome browser:
+### Step 1: Download the Extension
+1. Download the pre-compiled extension ZIP file directly from the live website:
+   **[Download Extension ZIP](https://forms.tapopen.online/extension.zip)**
+2. Unzip the downloaded file on your computer.
+
+### Step 2: Load it into your Browser
+1. Open Google Chrome (or any Chromium browser like Brave, Edge, Opera) and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** using the toggle switch in the top-right corner.
+3. Click the **Load unpacked** button in the top-left corner.
+4. Select the unzipped folder containing the extension files.
+5. The extension icon will now appear in your browser's toolbar!
+
+---
+
+## How to Create Timed Forms
+1. Open any Google Form view page in your browser (e.g. `docs.google.com/forms/d/e/.../viewform`).
+2. Click the **Google Forms Timer** extension icon in your toolbar.
+3. Configure the timer duration (e.g., 30 minutes) and optionally set an expiration date.
+4. Click **Save Settings** or **Generate Link**.
+5. Log into the hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online). Your configured forms will automatically sync, allowing you to copy the secure student exam link.
+6. Share the link with your students—the platform will manage the timer and proctoring natively.
+
+---
+
+## For Developers (Building from Source)
+
+If you are a developer and want to contribute to the extension or modify its functionality, follow these steps to build it from source:
 
 ### Step 1: Install Dependencies
 Open your terminal, navigate to the extension directory, and install the required npm packages:
@@ -30,21 +56,4 @@ Compile the TypeScript and TSX files into the final distribution folder:
 ```bash
 npm run build
 ```
-This will compile the extension assets into the `/chrome-extension/dist` directory.
-
-### Step 3: Load into Chrome
-1. Open Google Chrome and navigate to `chrome://extensions/`.
-2. Enable **Developer mode** using the toggle in the top-right corner.
-3. Click **Load unpacked** in the top-left corner.
-4. Select the `/chrome-extension/dist` folder from this project directory.
-5. The extension is now active in your browser!
-
----
-
-## How to Create Timed Forms
-1. Open any Google Form view page in your browser (e.g. `docs.google.com/forms/d/e/.../viewform`).
-2. Click the **Google Forms Timer** extension icon in your Chrome toolbar.
-3. Configure the timer duration (e.g., 30 minutes) and optionally set an expiration date.
-4. Click **Save Settings** or **Generate Link**.
-5. Log into the hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online). Your configured forms will automatically sync, allowing you to copy the secure student exam link.
-6. Share the link with your students—the platform will manage the timer and proctoring natively.
+This will compile the extension assets into the `/chrome-extension/dist` directory. You can then load this `/dist` directory into your browser using the "Load unpacked" button in `chrome://extensions/`.
