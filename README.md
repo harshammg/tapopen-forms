@@ -42,24 +42,7 @@ Before you start, make sure you have:
 4. Go to **Project Settings** > **API** and copy your `Project URL` and `anon public key`.
 
 ### Step 2: Website Setup (`/saas-website`)
-1. Open your terminal and navigate to the website directory:
-   ```bash
-   cd saas-website
-   ```
-2. Install the dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the root of the `/saas-website` folder and add your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=your-supabase-project-url
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-   ```
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
-   The site will be live at `http://localhost:5173`.
+Navigate to the `/saas-website` folder, install the dependencies (`npm install`), configure your `.env` file with Supabase credentials, and run `npm run dev` to start the website locally.
 
 ### Step 3: Chrome Extension Setup (`/chrome-extension`)
 1. Open your terminal and navigate to the extension directory:
