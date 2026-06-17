@@ -1,10 +1,8 @@
-# TapOpen Forms (Secure & Timed Google Forms)
+# Google Forms Timer (Chrome Extension)
 
-TapOpen Forms is an open-source, production-grade SaaS platform and Chrome Extension combination that adds customizable, secure countdown timers and anti-cheat proctoring to Google Forms.
+This repository contains the Chrome Extension for **TapOpen Forms**, a platform that adds customizable countdown timers and anti-cheat proctoring to Google Forms.
 
-This repository is split into two components:
-1. **`/chrome-extension`**: The browser extension used by teachers/form creators to configure timers directly on Google Forms and sync links to the dashboard.
-2. **`/saas-website`**: The React + Vite dashboard web app where teachers manage their links and students take the exams in a secure, timed viewport.
+You can use this extension locally to configure timers on your Google Forms and sync them to the live hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online).
 
 ---
 
@@ -12,84 +10,41 @@ This repository is split into two components:
 * **Custom Timers**: Set custom durations and expiration dates for any Google Form.
 * **Frictionless for Students**: Students do not need to install anything! They just open the secure link.
 * **Anti-Cheat Proctoring**: Detects when a student switches tabs or minimizes the window, automatically locking the exam.
-* **Auto-Submit & Force Submission**: Auto-fills empty required fields with "Not filled" and automatically submits when the timer runs out (requires the student to have the Chrome Extension installed).
-* **Supabase Integration**: Secure user authentication and Row-Level Security (RLS) database schemas.
+* **Auto-Submit & Force Submission**: Auto-fills empty required fields with "Not filled" and automatically submits when the timer runs out.
 
 ---
 
-## Tech Stack
-* **Frontend**: React, Vite, TypeScript, Tailwind CSS, Lucide Icons
-* **Extension**: Manifest V3, Vite, CRXJS, TypeScript
-* **Backend**: Supabase (Database, Auth, and Row-Level Security)
-* **Hosting/CI/CD**: Cloudflare Pages / Workers Assets
+## How to Install the Extension Locally
+
+Follow these steps to build the extension and load it into your Chrome browser:
+
+### Step 1: Install Dependencies
+Open your terminal, navigate to the extension directory, and install the required npm packages:
+```bash
+cd chrome-extension
+npm install
+```
+
+### Step 2: Build the Extension
+Compile the TypeScript and TSX files into the final distribution folder:
+```bash
+npm run build
+```
+This will compile the extension assets into the `/chrome-extension/dist` directory.
+
+### Step 3: Load into Chrome
+1. Open Google Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** using the toggle in the top-right corner.
+3. Click **Load unpacked** in the top-left corner.
+4. Select the `/chrome-extension/dist` folder from this project directory.
+5. The extension is now active in your browser!
 
 ---
 
-## Prerequisites
-Before you start, make sure you have:
-* [Node.js](https://nodejs.org/) (v18 or higher)
-* A free [Supabase](https://supabase.com/) account
-* A free [Cloudflare](https://cloudflare.com/) account
-
----
-
-## Setup Guide
-
-### Step 1: Database Setup (Supabase)
-1. Log in to [Supabase](https://supabase.com/) and create a new project.
-2. Navigate to the **SQL Editor** in the left sidebar.
-3. Open `saas-website/supabase_schema.sql` from this repository, copy the SQL, paste it into the editor, and click **Run**. This will create the `profiles` and `forms` tables, sync triggers, and enable Row-Level Security (RLS).
-4. Go to **Project Settings** > **API** and copy your `Project URL` and `anon public key`.
-
-### Step 2: Website Setup (`/saas-website`)
-Navigate to the `/saas-website` folder, install the dependencies (`npm install`), configure your `.env` file with Supabase credentials, and run `npm run dev` to start the website locally.
-
-### Step 3: Chrome Extension Setup (`/chrome-extension`)
-1. Open your terminal and navigate to the extension directory:
-   ```bash
-   cd chrome-extension
-   ```
-2. Install the dependencies:
-   ```bash
-   npm install
-   ```
-3. Build the extension:
-   ```bash
-   npm run build
-   ```
-   This will output the compiled extension files to `/chrome-extension/dist`.
-4. Load the extension in Chrome:
-   * Open Google Chrome and navigate to `chrome://extensions/`.
-   * Enable **Developer mode** (toggle in the top-right corner).
-   * Click **Load unpacked** in the top-left corner.
-   * Select the `/chrome-extension/dist` directory from this project.
-   * The extension is now loaded and active!
-
----
-
-## Deployment to Cloudflare
-
-This project is optimized for deployment via Cloudflare Workers Git Integration:
-
-1. Push your repository to GitHub.
-2. In the Cloudflare Dashboard, go to **Workers & Pages** > **Create** > **Pages** (or Workers Builds).
-3. Connect your GitHub repository and select the main branch.
-4. Fill in the build settings exactly as follows:
-   * **Path (Root Directory)**: `saas-website`
-   * **Build command**: `npm run build`
-   * **Deploy Commands**: `npx wrangler deploy`
-   * **non-production branch deploy commands**: `npx wrangler versions upload`
-5. Go to **Settings > Build > Variables and secrets** in the Cloudflare dashboard and add your environment variables so Vite can access them during compilation:
-   * `VITE_SUPABASE_URL`: `your-supabase-project-url`
-   * `VITE_SUPABASE_ANON_KEY`: `your-supabase-anon-key`
-6. Click **Save and Deploy**.
-
----
-
-## How to Test Locally
-1. Run the SaaS Website (`npm run dev` in `/saas-website`).
-2. Load the Chrome extension unpacked in Chrome.
-3. Open any Google Form view page in your browser (e.g. `docs.google.com/forms/d/e/.../viewform`).
-4. Click your Chrome Extension icon, enter a duration (e.g. 5 minutes), and click **Save Settings** or **Generate Link**.
-5. Go to your local dashboard (`http://localhost:5173/dashboard`). The form you configured will sync automatically, and you can copy the secure link.
-6. Open the secure link to take the timed exam!
+## How to Create Timed Forms
+1. Open any Google Form view page in your browser (e.g. `docs.google.com/forms/d/e/.../viewform`).
+2. Click the **Google Forms Timer** extension icon in your Chrome toolbar.
+3. Configure the timer duration (e.g., 30 minutes) and optionally set an expiration date.
+4. Click **Save Settings** or **Generate Link**.
+5. Log into the hosted dashboard at [https://forms.tapopen.online](https://forms.tapopen.online). Your configured forms will automatically sync, allowing you to copy the secure student exam link.
+6. Share the link with your students—the platform will manage the timer and proctoring natively.
