@@ -145,6 +145,7 @@ export default function Dashboard() {
 
       if (event.data && event.data.type === 'EXT_FORMS_SYNC') {
         setExtensionDetected(true);
+        if (pingInterval) clearInterval(pingInterval);
         const extForms = event.data.forms || [];
         if (user) {
           await syncFormsWithDb(extForms);
@@ -152,14 +153,20 @@ export default function Dashboard() {
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    let pingInterval: ReturnType<typeof setInterval>;
     
     // Announce ready
     if (user) {
       window.postMessage({ type: 'DASHBOARD_READY', userId: user.id }, '*');
+      pingInterval = setInterval(() => {
+        window.postMessage({ type: 'DASHBOARD_READY', userId: user.id }, '*');
+      }, 500);
     }
     
-    return () => window.removeEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      if (pingInterval) clearInterval(pingInterval);
+    };
   }, [user]);
 
   const copyToClipboard = (text: string) => {
