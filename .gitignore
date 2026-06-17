@@ -1,2 +1,19 @@
-# Ignore the SaaS website to keep it private
-saas-website/
+# Dependencies
+node_modules/
+
+# Production build outputs
+dist/
+
+# Local env files
+.env
+.env*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
