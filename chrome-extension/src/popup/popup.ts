@@ -111,15 +111,17 @@ generateBtn.addEventListener('click', async () => {
     const links = result.creatorLinks || {};
     if (links[formId]) {
       links[formId].link = link;
-      chrome.storage.local.set({ creatorLinks: links });
+      chrome.storage.local.set({ creatorLinks: links }, () => {
+        // Automatically redirect to dashboard ONLY AFTER saving completes
+        chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
+      });
+    } else {
+      chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
     }
   });
 
   linkOutput.value = link;
   resultContainer.classList.remove('hidden');
-  
-  // Automatically redirect to dashboard
-  chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
 });
 
 copyBtn.addEventListener('click', async () => {
