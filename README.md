@@ -57,3 +57,75 @@ Compile the TypeScript and TSX files into the final distribution folder:
 npm run build
 ```
 This will compile the extension assets into the `/chrome-extension/dist` directory. You can then load this `/dist` directory into your browser using the "Load unpacked" button in `chrome://extensions/`.
+
+---
+
+## 🤝 Open for Contributors!
+
+We welcome contributions from developers of all skill levels! Whether you want to fix a bug, add a new feature, or improve the documentation — we'd love your help.
+
+### How to Contribute
+
+1. **Fork** this repository.
+2. **Clone** your fork locally:
+   ```bash
+   git clone https://github.com/<your-username>/tapopen-forms.git
+   ```
+3. Create a new **branch** for your feature or fix:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. Make your changes and **commit** them with a clear message:
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+5. **Push** your branch and open a **Pull Request** against `main`.
+
+### Project Structure
+
+```
+├── chrome-extension/        # Chrome Extension (Vite + TypeScript)
+│   ├── src/
+│   │   ├── content/         # Content scripts (timer injection, dashboard sync)
+│   │   ├── popup/           # Extension popup UI
+│   │   ├── background/      # Service worker
+│   │   └── manifest.json    # Extension manifest
+│   └── public/              # Static assets (icons)
+│
+├── saas-website/            # SaaS Dashboard (React + Vite + Supabase)
+│   ├── src/
+│   │   ├── pages/           # Landing, Auth, Dashboard, ExamPage
+│   │   ├── components/      # Shared UI components
+│   │   ├── contexts/        # Auth context provider
+│   │   └── lib/             # Supabase client config
+│   └── supabase_schema.sql  # Database schema & RLS policies
+```
+
+### Ideas for Contributions
+
+- 🎨 **UI/UX Improvements** — Better responsive design, animations, dark/light themes
+- 🔒 **Advanced Proctoring** — Webcam monitoring, full-screen enforcement
+- 📊 **Analytics Dashboard** — Charts for form submissions, time taken, etc.
+- 🌍 **Internationalization** — Multi-language support
+- 🧪 **Testing** — Unit tests, integration tests, E2E tests
+- 📝 **Documentation** — Tutorials, API docs, video walkthroughs
+- 🐛 **Bug Fixes** — Check the [Issues](https://github.com/harshammg/tapopen-forms/issues) tab
+
+### Guidelines
+
+- Follow existing code style and conventions.
+- Write clear commit messages using [Conventional Commits](https://www.conventionalcommits.org/).
+- Test your changes before submitting a PR.
+- Be respectful and constructive in discussions.
+
+---
+
+## 📄 License
+
+This project is open source. Feel free to use, modify, and distribute it.
+
+---
+
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/harshammg">tapOpen</a>
+</p>
