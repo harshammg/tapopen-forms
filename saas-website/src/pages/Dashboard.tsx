@@ -281,7 +281,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/10 overflow-hidden relative z-10">
+      <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/10 relative z-10">
         <div className="border-b border-white/10 px-6 sm:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h3 className="text-xl font-bold text-white">Secure Timed Forms</h3>
@@ -323,7 +323,7 @@ export default function Dashboard() {
         ) : (
           <ul className="divide-y divide-white/5">
             {filteredForms.map((form) => (
-              <li key={form.id} className="p-6 sm:p-8 hover:bg-white/[0.02] transition-colors">
+              <li key={form.id} className="p-6 sm:p-8 hover:bg-white/[0.02] transition-colors first:rounded-t-[2rem] last:rounded-b-[2rem]">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                   <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
                     <div className="bg-purple-500/10 p-3 sm:p-4 rounded-2xl ring-1 ring-purple-500/20 shrink-0">
@@ -410,7 +410,7 @@ export default function Dashboard() {
                       {activeDropdown === form.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)}></div>
-                          <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-[#0F0F11] border border-white/10 p-2 shadow-2xl z-50 flex flex-col gap-1">
+                          <div className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl bg-[#0F0F11] border border-white/10 p-2 shadow-2xl z-50 flex flex-col gap-1">
                             <button 
                               onClick={() => { copyToClipboard(form.link); setActiveDropdown(null); }}
                               className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
