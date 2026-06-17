@@ -389,14 +389,25 @@ export default function Dashboard() {
                     </div>
 
                     {/* Mobile View Share Button & Dropdown */}
-                    <div className="flex md:hidden items-center gap-2 relative">
+                    <div className="flex md:hidden items-center gap-1.5 relative">
+                      <button onClick={() => copyToClipboard(form.link)} className="bg-white/5 hover:bg-white/10 p-2.5 rounded-xl transition-colors ring-1 ring-white/10 text-gray-400 hover:text-white cursor-pointer" title="Copy Link">
+                        <Copy className="h-4 w-4" />
+                      </button>
+
+                      <a href={form.link} target="_blank" rel="noreferrer" className="bg-white/5 hover:bg-white/10 p-2.5 rounded-xl transition-colors ring-1 ring-white/10 text-gray-400 hover:text-white flex items-center justify-center" title="Open Link">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+
                       <button 
                         onClick={() => handleShare(form)} 
-                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 p-2.5 rounded-xl transition-colors ring-1 ring-purple-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 p-2.5 rounded-xl transition-colors ring-1 ring-purple-500/20 flex items-center justify-center cursor-pointer"
                         title="Share Link"
                       >
-                        <Share2 className="h-4 w-4 shrink-0" />
-                        <span className="text-xs font-bold">Share</span>
+                        <Share2 className="h-4 w-4" />
+                      </button>
+
+                      <button onClick={() => handleDelete(form.id, form.googleFormId)} className="bg-red-500/10 hover:bg-red-500/20 p-2.5 rounded-xl transition-colors ring-1 ring-red-500/20 text-red-400 hover:text-red-300 cursor-pointer" title="Delete Timed Form">
+                        <Trash2 className="h-4 w-4" />
                       </button>
 
                       <button 
@@ -411,13 +422,6 @@ export default function Dashboard() {
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)}></div>
                           <div className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl bg-[#0F0F11] border border-white/10 p-2 shadow-2xl z-50 flex flex-col gap-1">
-                            <button 
-                              onClick={() => { copyToClipboard(form.link); setActiveDropdown(null); }}
-                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-                            >
-                              <Copy className="h-4 w-4 text-gray-400" />
-                              Copy Link
-                            </button>
                             <a 
                               href={`mailto:?subject=${encodeURIComponent('Please fill out this timed Google Form')}&body=${encodeURIComponent(`Here is the secure link to the timed form:\n\n${form.link}\n\nPlease note there is a strict time limit.`)}`}
                               target="_blank"
@@ -439,16 +443,6 @@ export default function Dashboard() {
                               WhatsApp Link
                             </a>
                             <a 
-                              href={form.link}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={() => setActiveDropdown(null)}
-                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors no-underline"
-                            >
-                              <ExternalLink className="h-4 w-4 text-gray-400" />
-                              Open Link
-                            </a>
-                            <a 
                               href={`https://docs.google.com/forms/d/${form.googleFormId.replace(/^e-/, '')}/edit`}
                               target="_blank"
                               rel="noreferrer"
@@ -458,14 +452,6 @@ export default function Dashboard() {
                               <Settings className="h-4 w-4 text-gray-400" />
                               Edit Form
                             </a>
-                            <div className="h-px bg-white/10 my-1"></div>
-                            <button 
-                              onClick={() => { handleDelete(form.id, form.googleFormId); setActiveDropdown(null); }}
-                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-400" />
-                              Delete Form
-                            </button>
                           </div>
                         </>
                       )}
