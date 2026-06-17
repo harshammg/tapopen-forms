@@ -140,6 +140,8 @@ export default function Dashboard() {
   }, [user]);
 
   useEffect(() => {
+    let pingInterval: ReturnType<typeof setInterval>;
+
     const handleMessage = async (event: MessageEvent) => {
       // Verify message origin matches ours
       if (event.source !== window) return;
@@ -154,9 +156,9 @@ export default function Dashboard() {
       }
     };
 
-    let pingInterval: ReturnType<typeof setInterval>;
+    window.addEventListener('message', handleMessage);
     
-    // Announce ready
+    // Announce ready and keep pinging until extension responds
     if (user) {
       window.postMessage({ type: 'DASHBOARD_READY', userId: user.id }, '*');
       pingInterval = setInterval(() => {
