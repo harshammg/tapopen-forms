@@ -5,9 +5,19 @@
   "description": "A customizable timer for Google Forms",
   "permissions": ["storage", "activeTab", "clipboardWrite", "webRequest"],
   "host_permissions": ["*://docs.google.com/forms/*"],
+  "icons": {
+    "16": "public/icon128.png",
+    "48": "public/icon128.png",
+    "128": "public/icon128.png"
+  },
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "Timer Settings"
+    "default_title": "Timer Settings",
+    "default_icon": {
+      "16": "public/icon128.png",
+      "48": "public/icon128.png",
+      "128": "public/icon128.png"
+    }
   },
   "background": {
     "service_worker": "src/background/background.ts",

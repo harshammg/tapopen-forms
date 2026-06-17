@@ -117,6 +117,9 @@ generateBtn.addEventListener('click', async () => {
 
   linkOutput.value = link;
   resultContainer.classList.remove('hidden');
+  
+  // Automatically redirect to dashboard
+  chrome.tabs.create({ url: `${WEBSITE_BASE}/dashboard` });
 });
 
 copyBtn.addEventListener('click', async () => {

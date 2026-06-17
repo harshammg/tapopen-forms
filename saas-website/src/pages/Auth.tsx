@@ -6,7 +6,8 @@ import { KeyRound, Mail, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -18,37 +19,57 @@ export default function Auth() {
     setError(null);
     setMessage(null);
 
-    try {
-      if (isSignUp) {
-        const { error, data } = await supabase.auth.signUp({
+    if (isResetMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        console.error("Reset password error details:", error);
+        setError(error.message);
+      } else {
+        setResetSent(true);
+        setMessage("If an account exists, we've sent a password reset link to your email.");
+      }
+      setLoading(false);
+      return;
+    }
+
+    // 1. Attempt Sign In first
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (!signInError) {
+      navigate('/dashboard');
+    } else {
+      // If error is exactly 'Invalid login credentials', it might be a new user (or wrong password)
+      if (signInError.message === 'Invalid login credentials') {
+        // 2. Attempt Sign Up (fallback)
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
         });
-        if (error) {
-          setError(error.message || (typeof error === 'string' ? error : 'Sign up failed. Please check your email and password.'));
-        } else if (data.user && data.session === null) {
-          // Confirmation email required
-          setMessage('Registration successful! Please check your email for a verification link.');
-        } else {
+
+        if (!signUpError) {
           navigate('/dashboard');
+        } else {
+          console.error("SignUp fallback error details:", signUpError);
+          // If they already exist, it confirms they just entered the wrong password initially
+          if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+            setError("Incorrect password. Please try again.");
+          } else {
+            const errMsg = signUpError.message;
+            setError(!errMsg || errMsg === '{}' ? "Authentication failed. Please try again later." : errMsg);
+          }
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) {
-          setError(error.message || (typeof error === 'string' ? error : 'Log in failed. Please check your credentials.'));
-        } else {
-          navigate('/dashboard');
-        }
+        console.error("SignIn error details:", signInError);
+        const errMsg = signInError.message;
+        setError(!errMsg || errMsg === '{}' ? "Sign in failed. Please check your credentials and try again." : errMsg);
       }
-    } catch (err: any) {
-      console.error('Auth handler error:', err);
-      setError(err?.message || String(err) || 'An unexpected authentication error occurred.');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
@@ -66,10 +87,10 @@ export default function Auth() {
           <span className="text-xs font-bold text-purple-400 tracking-widest uppercase mt-1">by tapOpen</span>
         </Link>
         <h2 className="mt-8 text-center text-3xl font-black tracking-tight text-white">
-          {isSignUp ? 'Create your account' : 'Welcome back'}
+          {isResetMode ? 'Reset Password' : 'Welcome to Forms'}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-400 font-medium">
-          {isSignUp ? 'Start securing your Google Forms today' : 'Log in to manage your active timed exams'}
+          {isResetMode ? "Enter your email and we'll send you a recovery link." : "Enter your email and password to continue. We'll automatically log you in or create a new account."}
         </p>
       </div>
 
@@ -113,39 +134,46 @@ export default function Auth() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-bold text-gray-300">
-                Password
-              </label>
-              <div className="mt-2 relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <KeyRound className="h-5 w-5 text-gray-500" />
+            {!isResetMode && (
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="password" className="block text-sm font-bold text-gray-300">
+                    Password
+                  </label>
+                  <button type="button" onClick={() => setIsResetMode(true)} className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors">
+                    Forgot password?
+                  </button>
                 </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 bg-[#0A0A0B] border border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-500 text-sm font-semibold transition-all"
-                  placeholder="••••••••"
-                />
+                <div className="mt-2 relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <KeyRound className="h-5 w-5 text-gray-500" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required={!isResetMode}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-[#0A0A0B] border border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-500 text-sm font-semibold transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || resetSent}
                 className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-2xl bg-white hover:bg-gray-200 text-gray-900 font-black text-base transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <>
-                    <span>{isSignUp ? 'Sign Up' : 'Log In'}</span>
+                    <span>{isResetMode ? 'Send Reset Link' : 'Continue'}</span>
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
@@ -153,19 +181,22 @@ export default function Auth() {
             </div>
           </form>
 
-          <div className="mt-6 border-t border-white/10 pt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError(null);
-                setMessage(null);
-              }}
-              className="text-sm font-bold text-purple-400 hover:text-purple-300 transition-colors"
-            >
-              {isSignUp ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
-            </button>
-          </div>
+          {isResetMode && (
+            <div className="mt-6 border-t border-white/10 pt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsResetMode(false);
+                  setResetSent(false);
+                  setError(null);
+                  setMessage(null);
+                }}
+                className="text-sm font-bold text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2 mx-auto"
+              >
+                <ArrowRight className="h-4 w-4 rotate-180" /> Back to Login
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

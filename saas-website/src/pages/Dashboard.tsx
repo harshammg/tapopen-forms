@@ -155,7 +155,9 @@ export default function Dashboard() {
     window.addEventListener('message', handleMessage);
     
     // Announce ready
-    window.postMessage({ type: 'DASHBOARD_READY' }, '*');
+    if (user) {
+      window.postMessage({ type: 'DASHBOARD_READY', userId: user.id }, '*');
+    }
     
     return () => window.removeEventListener('message', handleMessage);
   }, [user]);

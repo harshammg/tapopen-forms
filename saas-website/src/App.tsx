@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import ExamPage from './pages/ExamPage';
 import Auth from './pages/Auth';
+import ResetPassword from './pages/ResetPassword';
 import Navbar from './components/Navbar';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -30,6 +31,9 @@ function AppContent() {
 
       {/* Auth page - full screen, no navbar */}
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+
+      {/* Reset Password page - full screen, no navbar */}
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Regular pages with navbar */}
       <Route path="*" element={
