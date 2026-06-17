@@ -1,4 +1,4 @@
-import { Activity, FolderOpen, Plus, Search, Settings, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut, Trash2 } from 'lucide-react';
+import { Activity, FolderOpen, Plus, Search, Settings, Link as LinkIcon, Clock, Copy, ExternalLink, Edit2, Lock, Mail, MessageCircle, LogOut, Trash2, MoreVertical, Share2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -18,6 +18,24 @@ export default function Dashboard() {
   const [extensionDetected, setExtensionDetected] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  const handleShare = async (form: ExtForm) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: form.title || 'Timed Google Form',
+          text: `Please fill out this secure timed Google Form:`,
+          url: form.link
+        });
+      } catch (err) {
+        console.log('Share failed or canceled', err);
+      }
+    } else {
+      copyToClipboard(form.link);
+    }
+  };
+
 
   // Helper to extract Google Form ID from extension link
   const extractFormIdFromLink = (link: string): string => {
@@ -337,35 +355,121 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap justify-end">
-                    <button onClick={() => copyToClipboard(form.link)} className="bg-white/5 hover:bg-white/10 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-white/10 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Copy Link">
-                      <Copy className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-white" />
-                      <span className="sm:hidden text-sm font-bold text-gray-300 group-hover:text-white">Copy</span>
-                    </button>
-                    
-                    <a href={`mailto:?subject=${encodeURIComponent('Please fill out this timed Google Form')}&body=${encodeURIComponent(`Here is the secure link to the timed form:\n\n${form.link}\n\nPlease note there is a strict time limit.`)}`} target="_blank" rel="noreferrer" className="bg-blue-500/10 hover:bg-blue-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-blue-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Share via Email">
-                      <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 group-hover:text-blue-300" />
-                      <span className="sm:hidden text-sm font-bold text-blue-300 group-hover:text-blue-200">Email</span>
-                    </a>
-                    
-                    <a href={`https://wa.me/?text=${encodeURIComponent(`Please fill out this secure timed Google Form:\n${form.link}`)}`} target="_blank" rel="noreferrer" className="bg-green-500/10 hover:bg-green-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-green-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Share via WhatsApp">
-                      <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 group-hover:text-green-300" />
-                      <span className="sm:hidden text-sm font-bold text-green-300 group-hover:text-green-200">WhatsApp</span>
-                    </a>
+                    {/* Desktop View Action Buttons */}
+                    <div className="hidden md:flex items-center gap-2 sm:gap-3 flex-wrap">
+                      <button onClick={() => copyToClipboard(form.link)} className="bg-white/5 hover:bg-white/10 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-white/10 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Copy Link">
+                        <Copy className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-white" />
+                        <span className="sm:hidden text-sm font-bold text-gray-300 group-hover:text-white">Copy</span>
+                      </button>
+                      
+                      <a href={`mailto:?subject=${encodeURIComponent('Please fill out this timed Google Form')}&body=${encodeURIComponent(`Here is the secure link to the timed form:\n\n${form.link}\n\nPlease note there is a strict time limit.`)}`} target="_blank" rel="noreferrer" className="bg-blue-500/10 hover:bg-blue-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-blue-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Share via Email">
+                        <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 group-hover:text-blue-300" />
+                        <span className="sm:hidden text-sm font-bold text-blue-300 group-hover:text-blue-200">Email</span>
+                      </a>
+                      
+                      <a href={`https://wa.me/?text=${encodeURIComponent(`Please fill out this secure timed Google Form:\n${form.link}`)}`} target="_blank" rel="noreferrer" className="bg-green-500/10 hover:bg-green-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-green-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Share via WhatsApp">
+                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 group-hover:text-green-300" />
+                        <span className="sm:hidden text-sm font-bold text-green-300 group-hover:text-green-200">WhatsApp</span>
+                      </a>
 
-                    <a href={form.link} target="_blank" rel="noreferrer" className="bg-white/5 hover:bg-white/10 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-white/10 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Open Link">
-                      <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-white" />
-                      <span className="sm:hidden text-sm font-bold text-gray-300 group-hover:text-white">Open</span>
-                    </a>
+                      <a href={form.link} target="_blank" rel="noreferrer" className="bg-white/5 hover:bg-white/10 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-white/10 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Open Link">
+                        <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-white" />
+                        <span className="sm:hidden text-sm font-bold text-gray-300 group-hover:text-white">Open</span>
+                      </a>
 
-                    <a href={`https://docs.google.com/forms/d/${form.googleFormId.replace(/^e-/, '')}/edit`} target="_blank" rel="noreferrer" className="bg-purple-500/10 hover:bg-purple-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-purple-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Edit Google Form">
-                      <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 group-hover:text-purple-300" />
-                      <span className="sm:hidden text-sm font-bold text-purple-300 group-hover:text-purple-200">Edit Form</span>
-                    </a>
+                      <a href={`https://docs.google.com/forms/d/${form.googleFormId.replace(/^e-/, '')}/edit`} target="_blank" rel="noreferrer" className="bg-purple-500/10 hover:bg-purple-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-purple-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2" title="Edit Google Form">
+                        <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 group-hover:text-purple-300" />
+                        <span className="sm:hidden text-sm font-bold text-purple-300 group-hover:text-purple-200">Edit Form</span>
+                      </a>
 
-                    <button onClick={() => handleDelete(form.id, form.googleFormId)} className="bg-red-500/10 hover:bg-red-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-red-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2 cursor-pointer" title="Delete Timed Form">
-                      <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-red-400 group-hover:text-red-300" />
-                      <span className="sm:hidden text-sm font-bold text-red-300 group-hover:text-red-200">Delete</span>
-                    </button>
+                      <button onClick={() => handleDelete(form.id, form.googleFormId)} className="bg-red-500/10 hover:bg-red-500/20 p-2.5 sm:p-3 rounded-xl transition-colors ring-1 ring-red-500/20 group flex-1 sm:flex-none flex justify-center items-center gap-2 cursor-pointer" title="Delete Timed Form">
+                        <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-red-400 group-hover:text-red-300" />
+                        <span className="sm:hidden text-sm font-bold text-red-300 group-hover:text-red-200">Delete</span>
+                      </button>
+                    </div>
+
+                    {/* Mobile View Share Button & Dropdown */}
+                    <div className="flex md:hidden items-center gap-2 relative">
+                      <button 
+                        onClick={() => handleShare(form)} 
+                        className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 p-2.5 rounded-xl transition-colors ring-1 ring-purple-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Share Link"
+                      >
+                        <Share2 className="h-4 w-4 shrink-0" />
+                        <span className="text-xs font-bold">Share</span>
+                      </button>
+
+                      <button 
+                        onClick={() => setActiveDropdown(activeDropdown === form.id ? null : form.id)}
+                        className="bg-white/5 hover:bg-white/10 p-2.5 rounded-xl transition-colors ring-1 ring-white/10 text-gray-400 hover:text-white cursor-pointer"
+                        title="More Actions"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+
+                      {activeDropdown === form.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)}></div>
+                          <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-[#0F0F11] border border-white/10 p-2 shadow-2xl z-50 flex flex-col gap-1">
+                            <button 
+                              onClick={() => { copyToClipboard(form.link); setActiveDropdown(null); }}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                            >
+                              <Copy className="h-4 w-4 text-gray-400" />
+                              Copy Link
+                            </button>
+                            <a 
+                              href={`mailto:?subject=${encodeURIComponent('Please fill out this timed Google Form')}&body=${encodeURIComponent(`Here is the secure link to the timed form:\n\n${form.link}\n\nPlease note there is a strict time limit.`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setActiveDropdown(null)}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-colors no-underline"
+                            >
+                              <Mail className="h-4 w-4 text-gray-400" />
+                              Email Link
+                            </a>
+                            <a 
+                              href={`https://wa.me/?text=${encodeURIComponent(`Please fill out this secure timed Google Form:\n${form.link}`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setActiveDropdown(null)}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors no-underline"
+                            >
+                              <MessageCircle className="h-4 w-4 text-gray-400" />
+                              WhatsApp Link
+                            </a>
+                            <a 
+                              href={form.link}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setActiveDropdown(null)}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors no-underline"
+                            >
+                              <ExternalLink className="h-4 w-4 text-gray-400" />
+                              Open Link
+                            </a>
+                            <a 
+                              href={`https://docs.google.com/forms/d/${form.googleFormId.replace(/^e-/, '')}/edit`}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => setActiveDropdown(null)}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors no-underline"
+                            >
+                              <Settings className="h-4 w-4 text-gray-400" />
+                              Edit Form
+                            </a>
+                            <div className="h-px bg-white/10 my-1"></div>
+                            <button 
+                              onClick={() => { handleDelete(form.id, form.googleFormId); setActiveDropdown(null); }}
+                              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-400" />
+                              Delete Form
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </li>
