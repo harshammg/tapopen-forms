@@ -61,5 +61,9 @@ create policy "Users can delete their own forms." on public.forms
   for delete using (auth.uid() = user_id);
 
 -- 4. Enable public read access to forms (so students can fetch form details by UUID)
+-- WARNING: This policy allows ANY user to read ALL forms. This is necessary for the
+-- ExamPage (/take/:formId) where unauthenticated students need to fetch form settings.
+-- Because RLS policies are OR'd, this overrides the "Users can view their own forms" policy.
+-- The Dashboard query MUST explicitly filter by user_id to prevent data leakage.
 create policy "Allow public read access to forms by ID" on public.forms
   for select using (true);
