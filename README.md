@@ -127,5 +127,5 @@ This project is open source. Feel free to use, modify, and distribute it.
 ---
 
 <p align="center">
-  Built by <a href="https://tapopen.online">tapOpen</a>
+  Built by <a href="https://tapopen.online">TapOpen</a>
 </p>
